@@ -10,7 +10,7 @@ go to chatbot-platform/
 
 ## Run
 
-- python python/server.py  (Start Python Core Server)
+- python python/server.py  (Start Python Core Server at 5000 default port)
 - npm start
 
 
