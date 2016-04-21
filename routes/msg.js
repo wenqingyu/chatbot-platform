@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var config = require('./config.js');
+var config = require('./../config.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
