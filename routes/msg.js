@@ -1,24 +1,20 @@
 var express = require('express');
 var router = express.Router();
-var PythonShell = require('python-shell');
-var pyshell = new PythonShell('./python/msg.py');
+var config = require('.config.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
 
-  // sends a message to the Python script via stdin
-  pyshell.send('hello');
+  // send request to localhost:5000 core python server to get information
+  // 每一个用户有一个自己的bot，每一次新的对话都会根据session创建一个新的bot
+  // 如果一个小时不交谈，这个bot就会过期释放，以节约内存
+  // Python 这边有三个接口：
+  /*
+   * /create?session=
+   * /chat?session= &msg=
+   * /getBotList
+   */
 
-  pyshell.on('message', function (message) {
-    // received a message sent from the Python script (a simple "print" statement)
-    console.log(message);
-  });
-
-// end the input stream and allow the process to exit
-  pyshell.end(function (err) {
-    if (err) throw err;
-    console.log('finished');
-  });
 
   res.send('respond with a resource');
 });
