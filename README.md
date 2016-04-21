@@ -5,6 +5,7 @@
 go to chatbot-platform/
 
 - pip install chatterbot
+- pip install flask
 - npm install
 
 ## Run
