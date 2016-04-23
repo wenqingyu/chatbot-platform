@@ -1,56 +1,49 @@
 var express = require('express');
 var router = express.Router();
 var conf = require('./../config.js');
-var mediaIndex = require('./../config/media.js');
 var request = require('request');
-var orm = require("orm");
+var MediaDao = require('../dao/mediaDao');
+var mediadao = new MediaDao();
+var co = require('co');
 
 /* GET users listing. */
-router.post('/sendMsg/add', function (req, res, next) {
-    var openid = req.body.openid;
-    var msg = req.body.msg;
+router.get('/sendMsg/add', function (req, res, next) {
+    var openid = req.query.openid;
+    var msg = req.query.msg;
     if (!msg) {
         return res.jsonp({ status: -1, msgbody: '亲，你在说什么，我没听见！' });
     }
-    //var type = req.body.type;
-    //if (type) {
-    //    return res.jsonp({ status: 200, msgbody: { image: "http://a.36krcnd.com/nil_class/553a33db-0c10-4f19-bc2c-967e58c76ade/00000.png!heading", title: "安卓之父Andy Rubin：要把互联网现实化", url: "http://36kr.com/p/5046123.html" } })
-    //}
-    common.run(responseMsg(openid, msg, res));
-
-
-
-
-
-//var resMedia = [];
-//for (var media in mediaIndex) {
-//    for (var i = 0; i < media.leng; i++) {
-//        console.log(media[i]);
-//        if (msg.indexOf(media[i] > -1)) {
-//            type = media[0];
-//            // todo: push this type's media to user
-//            console.log("push: ", type);
-//            // 这里需要去implement一下随机提取音乐，电商，新闻等media的东西
-//            resMedia.push({ image: "http://a.36krcnd.com/nil_class/553a33db-0c10-4f19-bc2c-967e58c76ade/00000.png!heading", title: "安卓之父Andy Rubin：要把互联网现实化", url: "http://36kr.com/p/5046123.html" })
-//        }
-//    }
-//}
-//response.media = resMedia;
+    co(function* () { 
+        var yieldList = [];
+        //先过滤粉丝的信息，是否包含关键字，如果包含，则从数据库中取出相应数据
+        for (var type in conf.media) {
+            conf.media[type].forEach(function (keyWords) {
+                if (msg.indexOf(keyWords) > -1) {
+                    yieldList.push(mediadao.getMedia(type));
+                }
+            })
+        }
+        //包含关键字则回复Media
+        if (yieldList.length > 0) {
+            var data = yield yieldList;
+            res.jsonp({ status: 200, msgbody: data });
+        } else { 
+            //取1-10的随机数
+            var random = Math.round(Math.random() * 9 + 1);
+            //  1/10的几率回复Media
+            if (random == 1) {
+                var data = yield mediadao.getMedia();
+                res.jsonp({ status: 200, msgbody: data });
+            } else {
+                var data = yield ajaxBot(msg);
+                res.jsonp({ status: 200, msgbody: data });
+            }
+        }
+    }).catch((err)=> {
+        console.error(err);
+        res.jsonp({status:-1,msgbody:'自动回复出错;'})
+    });
 });
-
-/**
- *  回复粉丝消息
- **/
-function* responseMsg(openid, msg, res) {
-    try {
-        var botMsg = yield ajaxBot(msg);
-        res.jsonp({ status: 200, msgbody: botMsg })
-    } catch (err) {
-        console.error('回复粉丝消息错误:' + err);
-        res.jsonp({ status: -1, msgbody: '回复粉丝消息错误' })
-    }
-}
-
 
 /**
  * 请求机器人
