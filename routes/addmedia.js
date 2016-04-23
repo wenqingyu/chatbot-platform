@@ -1,16 +1,19 @@
 var express = require('express');
 var router = express.Router();
-var config = require('./../config.js');
+var MediaDao = require('../dao/mediaDao');
+var mediadao = new MediaDao();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-
-    /**
-     * Todo: 爬虫爬到的东西从这个接口推送到数据库里记录下来
-     */
-
-
-    res.send('respond with a resource');
+/* 资源入库 */
+router.post('/add', function(req, res, next) {
+    var items = req.body.items;
+    mediadao.insertMedia(items)
+    .then(function () { 
+         res.jsonp({status:200,msgbody:'插入成功'})
+    })
+    .catch(function (err) {
+        console.error('插入资源失败:' + err);
+        res.jsonp({ status: -1, msgbody: err });
+    })
 });
 
 module.exports = router;

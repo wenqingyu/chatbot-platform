@@ -23,3 +23,18 @@ Media.prototype.getMedia = function (type) {
         }        
     })
 }
+
+/**
+ * 插入资源
+ **/
+Media.prototype.insertMedia = function (item) {
+    return new Promise(function (resolve, reject) {
+        db.models['media'].create(item, function (err, item) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(item);
+        })
+    })
+}
