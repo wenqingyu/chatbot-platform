@@ -14,7 +14,6 @@ var orm = require("orm");
 var app = express();
 var fs = require('fs');
 var Promise = require('bluebird');
-global.common = require('./common.js');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
