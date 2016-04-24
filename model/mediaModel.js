@@ -7,7 +7,8 @@ module.exports = function (db, cb) {
         title: String,
         description: String,
         url: String,
-        type: String
+        type: String,
+        createtime: Date
     });
     return cb();
 }
